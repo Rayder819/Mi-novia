@@ -6,7 +6,6 @@
     <title>Nuestra Historia ❤️</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* El !important asegura que la pantalla se oculte sí o sí */
         .hidden { display: none !important; } 
         .fade-in { animation: fadeIn 1s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -53,16 +52,21 @@
 
     <div id="final-screen" class="hidden max-w-2xl w-full bg-white p-10 rounded-3xl shadow-2xl fade-in text-center max-h-[90vh] overflow-y-auto">
         <h2 class="text-4xl font-bold text-rose-600 mb-8 italic">Pese a todo, siempre tú...</h2>
-        <div id="love-letter" class="text-lg text-slate-700 leading-relaxed text-left bg-rose-50 p-8 rounded-2xl border-l-8 border-rose-400 whitespace-pre-wrap"></div>
-        <p class="mt-8 text-2xl font-bold text-rose-400">Te amo para siempre. ❤️</p>
+        
+        <div id="love-letter" class="text-lg text-slate-700 leading-relaxed text-left bg-rose-50 p-8 rounded-2xl border-l-8 border-rose-400 whitespace-pre-wrap mb-8"></div>
+        
+        <div class="fade-in" style="animation-delay: 2s;"> 
+            <img src="nosotros.jpg" alt="Nosotros" class="rounded-2xl mx-auto shadow-2xl border-4 border-white transform hover:scale-105 transition-transform duration-500 max-w-full h-auto mb-6">
+            <p class="text-2xl font-bold text-rose-400 mb-4">Te amo para siempre. ❤️</p>
+        </div>
     </div>
 
     <script>
-        const FORMSPREE_ID = "meelalrz"; // Tu ID de Formspree
+        const FORMSPREE_ID = "meelalrz"; 
         
         const questions = [
             "¿Cuál crees que fue el momento exacto en que supiste que valía la pena luchar por nosotros?",
-            "¿Qué sentiste ese día en el concierto de Kidd Voodoo cuando te pedí matrimonio?",
+            "¿Qué sentiste ese día en q nos dimos que somos muy compatibles a pesar de ser tan diferentes?",
             "¿Cómo cambió tu vida el día que rescatamos a esos 7 cachorritos?",
             "Si pudieras decirnos algo a nosotros mismos cuando recién empezábamos y era difícil, ¿qué sería?",
             "¿Qué es lo que más valoras de nuestra relación después de todo lo que hemos pasado?"
@@ -71,12 +75,10 @@
         let currentQ = 0;
         let userAnswers = [];
 
-        // --- FUNCIÓN DE NAVEGACIÓN (CORREGIDA) ---
         function nextLevel(hideId, showId) {
             document.getElementById(hideId).classList.add('hidden');
             document.getElementById(showId).classList.remove('hidden');
             if (showId === 'quiz-screen') {
-                // Iniciar la primera pregunta inmediatamente
                 document.getElementById('quiz-question').innerText = questions[currentQ];
             }
             if (showId === 'game-screen') {
@@ -109,7 +111,6 @@
             } catch (e) { console.log("Silent send"); }
         }
 
-        // --- JUEGO SIMBÓLICO ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const storyOverlay = document.getElementById('story-overlay');
@@ -122,7 +123,7 @@
         let pressing = false;
 
         const milestones = [
-            { d: 500, icon: '🎤', text: "El día del concierto de Kidd Voodoo... un 'Sí' para siempre." },
+            { d: 500, icon: '🎤', text: "El día del concierto de Kidd Voodoo... solo tu y yo sabemos." },
             { d: 1500, icon: '🐕', text: "Rescatamos 7 vidas... y ellos rescataron las nuestras." },
             { d: 2500, icon: '🧁', text: "Mi quequito y flores... porque te mereces todo cuando nadie más está." },
             { d: 3500, icon: '🎂', text: "Tu sorpresa de cumpleaños... cuando me demostraste tu amor infinito." },
@@ -130,7 +131,6 @@
         ];
 
         function initSimbologia() {
-            // Soporte para iPad/iPhone
             window.addEventListener('touchstart', (e) => { e.preventDefault(); pressing = true; }, {passive: false});
             window.addEventListener('touchend', () => pressing = false);
             requestAnimationFrame(gameLoop);
@@ -138,24 +138,18 @@
 
         function gameLoop() {
             if(!gameActive) return;
-            
             let colorVal = Math.min(distance / 20, 255);
             if (distance < 2000) canvas.style.background = `linear-gradient(to right, #2d3748, #fb7185)`;
             else canvas.style.background = `linear-gradient(to right, #fb7185, #fff1f2)`;
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             if(pressing) player.vy += player.lift;
             player.vy += player.gravity;
             player.y += player.vy;
             player.vy *= 0.7;
-
             if(player.y > canvas.height - 30) player.y = canvas.height - 30;
             if(player.y < 30) player.y = 30;
-
             ctx.font = "40px serif";
             ctx.fillText("❤️", player.x - 20, player.y + 15);
-
             milestones.forEach(m => {
                 let xPos = m.d - distance;
                 if(xPos > 0 && xPos < canvas.width) {
@@ -166,7 +160,6 @@
                     }
                 }
             });
-
             distance += speed;
             if(distance > 5000) finishGame();
             else requestAnimationFrame(gameLoop);
