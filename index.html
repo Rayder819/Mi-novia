@@ -6,28 +6,31 @@
     <title>Nuestra Historia ❤️</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .hidden { display: none; }
+        /* El !important asegura que la pantalla se oculte sí o sí */
+        .hidden { display: none !important; } 
         .fade-in { animation: fadeIn 1s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         canvas { 
             border-radius: 24px; 
             touch-action: none; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            background: #1a1a1a; /* Empieza oscuro */
+            background: #1a1a1a; 
             transition: background 5s ease;
         }
     </style>
 </head>
 <body class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
+
     <div id="start-screen" class="text-center fade-in max-w-sm">
-    <div class="text-6xl mb-6">💌</div>
-    <h1 class="text-4xl font-extrabold text-rose-600 mb-4">¡Hola Amor!</h1>
-    <p class="mb-8 text-lg text-rose-400 font-medium">He preparado unas preguntas para ti antes de mostrarte tu sorpresa. ¿Lista?</p>
-    <button onclick="nextLevel('start-screen', 'quiz-screen')" class="bg-rose-500 text-white px-10 py-4 rounded-full text-xl font-bold shadow-xl active:scale-95 transition-all">
-        ¡Empezar!
-    </button>
-</div>
-    <div id="quiz-screen" class="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl fade-in">
+        <div class="text-6xl mb-6">💌</div>
+        <h1 class="text-4xl font-extrabold text-rose-600 mb-4">¡Hola Amor!</h1>
+        <p class="mb-8 text-lg text-rose-400 font-medium">He preparado unas preguntas para ti antes de mostrarte tu sorpresa. ¿Lista?</p>
+        <button onclick="nextLevel('start-screen', 'quiz-screen')" class="bg-rose-500 text-white px-10 py-4 rounded-full text-xl font-bold shadow-xl active:scale-95 transition-all">
+            ¡Empezar!
+        </button>
+    </div>
+
+    <div id="quiz-screen" class="hidden w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl fade-in">
         <div class="flex justify-between items-center mb-6">
             <span class="text-rose-300 font-bold uppercase tracking-widest text-xs">Misión 1: Reflexión</span>
             <span id="progress" class="text-rose-500 font-bold">1/5</span>
@@ -57,7 +60,6 @@
     <script>
         const FORMSPREE_ID = "meelalrz"; // Tu ID de Formspree
         
-        // --- DATA DEL QUIZ ---
         const questions = [
             "¿Cuál crees que fue el momento exacto en que supiste que valía la pena luchar por nosotros?",
             "¿Qué sentiste ese día en el concierto de Kidd Voodoo cuando te pedí matrimonio?",
@@ -68,6 +70,19 @@
 
         let currentQ = 0;
         let userAnswers = [];
+
+        // --- FUNCIÓN DE NAVEGACIÓN (CORREGIDA) ---
+        function nextLevel(hideId, showId) {
+            document.getElementById(hideId).classList.add('hidden');
+            document.getElementById(showId).classList.remove('hidden');
+            if (showId === 'quiz-screen') {
+                // Iniciar la primera pregunta inmediatamente
+                document.getElementById('quiz-question').innerText = questions[currentQ];
+            }
+            if (showId === 'game-screen') {
+                initSimbologia();
+            }
+        }
 
         function handleQuizNext() {
             const val = document.getElementById('user-input').value.trim();
@@ -80,9 +95,7 @@
                 document.getElementById('user-input').value = "";
             } else {
                 enviarRespuestas();
-                document.getElementById('quiz-screen').classList.add('hidden');
-                document.getElementById('game-screen').classList.remove('hidden');
-                initSimbologia();
+                nextLevel('quiz-screen', 'game-screen');
             }
         }
 
@@ -96,7 +109,7 @@
             } catch (e) { console.log("Silent send"); }
         }
 
-        // --- JUEGO SIMBÓLICO: NUESTRO CAMINO ---
+        // --- JUEGO SIMBÓLICO ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const storyOverlay = document.getElementById('story-overlay');
@@ -117,7 +130,8 @@
         ];
 
         function initSimbologia() {
-            window.addEventListener('touchstart', () => pressing = true);
+            // Soporte para iPad/iPhone
+            window.addEventListener('touchstart', (e) => { e.preventDefault(); pressing = true; }, {passive: false});
             window.addEventListener('touchend', () => pressing = false);
             requestAnimationFrame(gameLoop);
         }
@@ -125,36 +139,28 @@
         function gameLoop() {
             if(!gameActive) return;
             
-            // Efecto de fondo: De la oscuridad a la luz (Cisterna a Paz)
             let colorVal = Math.min(distance / 20, 255);
-            canvas.style.backgroundColor = `rgb(${255}, ${228 + (colorVal/10)}, ${230 + (colorVal/10)})`;
             if (distance < 2000) canvas.style.background = `linear-gradient(to right, #2d3748, #fb7185)`;
             else canvas.style.background = `linear-gradient(to right, #fb7185, #fff1f2)`;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Gravedad
             if(pressing) player.vy += player.lift;
             player.vy += player.gravity;
             player.y += player.vy;
             player.vy *= 0.7;
 
-            // Límites
             if(player.y > canvas.height - 30) player.y = canvas.height - 30;
             if(player.y < 30) player.y = 30;
 
-            // Dibujar Jugador (Corazón)
             ctx.font = "40px serif";
             ctx.fillText("❤️", player.x - 20, player.y + 15);
 
-            // Dibujar Hitos
             milestones.forEach(m => {
                 let xPos = m.d - distance;
                 if(xPos > 0 && xPos < canvas.width) {
                     ctx.font = "50px serif";
                     ctx.fillText(m.icon, xPos, 200);
-                    
-                    // Colisión simbólica
                     if(Math.abs(xPos - player.x) < 40) {
                         showStory(m.text);
                     }
@@ -174,12 +180,10 @@
 
         function finishGame() {
             gameActive = false;
-            document.getElementById('game-screen').classList.add('hidden');
-            document.getElementById('final-screen').classList.remove('hidden');
+            nextLevel('game-screen', 'final-screen');
             typeWriter();
         }
 
-        // --- CARTA FINAL ---
         const loveText = `Nuestra relación no empezó en un jardín de rosas. Fue duro, difícil de manejar y hubo momentos donde el cielo parecía estar siempre gris. Pero nos mantuvimos fuertes. Nos elegimos cuando era más fácil rendirse.
 
 Hoy miro atrás y veo todo lo que hemos construido de algunos momentos que siempre viven en mi cabeza. En el concierto de Kidd Voodoo, los 7 cachorritos que cuidamos con tanto amor, cuando te tatuaste mi inicial, las sorpresas en nuestros cumpleaños... esos momentos donde, cuando nadie más estaba, nosotros nos teníamos el uno al otro. 
