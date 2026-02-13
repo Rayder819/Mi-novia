@@ -3,127 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nuestra Misión ❤️</title>
+    <title>Nuestra Historia ❤️</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none; }
-        .fade-in { animation: fadeIn 0.6s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Estilos del Juego de Memoria */
-        .memory-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            perspective: 1000px;
+        .fade-in { animation: fadeIn 1s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        canvas { 
+            border-radius: 24px; 
+            touch-action: none; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            background: #1a1a1a; /* Empieza oscuro */
+            transition: background 5s ease;
         }
-        .card {
-            aspect-ratio: 1;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-            cursor: pointer;
-        }
-        .card.flipped { transform: rotateY(180deg); }
-        .card-front, .card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        }
-        .card-front { background: #fff; transform: rotateY(180deg); }
-        .card-back { background: #fda4af; color: white; }
     </style>
 </head>
-<body class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
 
-    <div id="start-screen" class="text-center fade-in max-w-sm">
-        <div class="text-6xl mb-6">⛏️</div>
-        <h1 class="text-4xl font-extrabold text-rose-600 mb-4">¡Hola Amor!</h1>
-        <p class="mb-8 text-lg text-rose-400 font-medium">Supera los niveles para llegar a tu sorpresa de San Valentín.</p>
-        <button onclick="nextLevel('start-screen', 'quiz-screen')" class="bg-rose-500 text-white px-10 py-4 rounded-full text-xl font-bold shadow-xl active:scale-95 transition-all">
-            ¡Empezar Misión!
-        </button>
-    </div>
-
-    <div id="quiz-screen" class="hidden w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl fade-in">
+    <div id="quiz-screen" class="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl fade-in">
         <div class="flex justify-between items-center mb-6">
-            <span class="text-rose-300 font-bold uppercase tracking-widest text-sm">Nivel 1: Quiz</span>
-            <span id="progress" class="text-rose-500 font-bold">1/5</span>
+            <span class="text-rose-300 font-bold uppercase tracking-widest text-xs">Misión 1: Reflexión</span>
+            <span id="progress" class="text-rose-500 font-bold">1/4</span>
         </div>
         <h2 class="text-2xl font-bold mb-4 text-slate-700" id="quiz-question">Cargando...</h2>
-        <textarea id="user-input" rows="3" class="w-full p-4 border-2 border-rose-100 rounded-2xl focus:border-rose-400 focus:outline-none transition-colors resize-none mb-6" placeholder="Responde aquí..."></textarea>
-        <button onclick="handleQuizNext()" class="w-full bg-rose-500 text-white py-4 rounded-2xl font-bold text-lg shadow-lg active:scale-95 transition-all">
-            Continuar
-        </button>
+        <textarea id="user-input" rows="3" class="w-full p-4 border-2 border-rose-100 rounded-2xl focus:border-rose-400 focus:outline-none transition-colors resize-none mb-6" placeholder="Responde de corazón..."></textarea>
+        <button onclick="handleQuizNext()" class="w-full bg-rose-500 text-white py-4 rounded-2xl font-bold text-lg shadow-lg active:scale-95 transition-all">Siguiente</button>
     </div>
 
-    <div id="game-screen" class="hidden text-center fade-in w-full max-w-md">
-        <h2 class="text-2xl font-bold mb-2 text-rose-500">Nivel 2: Memory Match</h2>
-        <p class="mb-6 text-slate-500 italic">Encuentra todos los pares de nuestra historia</p>
-        <div id="memory-board" class="memory-grid">
+    <div id="game-screen" class="hidden text-center fade-in w-full max-w-4xl">
+        <h2 class="text-2xl font-bold mb-2 text-rose-500">Nuestra Trayectoria</h2>
+        <p id="game-instruction" class="mb-4 text-slate-500 italic">Mantén presionado para elevar nuestro amor y recolectar los recuerdos</p>
+        <div class="relative inline-block w-full">
+            <canvas id="gameCanvas" width="800" height="400" class="w-full h-auto"></canvas>
+            <div id="story-overlay" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-1000">
+                <div class="bg-white/90 p-6 rounded-2xl shadow-xl text-xl font-bold text-rose-600 border-2 border-rose-200" id="story-text"></div>
             </div>
+        </div>
     </div>
 
-    <div id="final-screen" class="hidden max-w-lg w-full bg-white p-8 rounded-3xl shadow-2xl fade-in text-center overflow-y-auto max-h-[90vh]">
-        <img src="https://via.placeholder.com/400x300" id="final-photo" class="rounded-2xl mx-auto shadow-lg mb-6 border-4 border-rose-100">
-        <h2 class="text-3xl font-bold text-rose-600 mb-6 italic">Para mi persona favorita...</h2>
-        <div id="love-letter" class="text-lg text-slate-700 leading-relaxed text-left bg-rose-50 p-6 rounded-2xl border-l-4 border-rose-400"></div>
+    <div id="final-screen" class="hidden max-w-2xl w-full bg-white p-10 rounded-3xl shadow-2xl fade-in text-center max-h-[90vh] overflow-y-auto">
+        <h2 class="text-4xl font-bold text-rose-600 mb-8 italic">Pese a todo, siempre tú...</h2>
+        <div id="love-letter" class="text-lg text-slate-700 leading-relaxed text-left bg-rose-50 p-8 rounded-2xl border-l-8 border-rose-400 whitespace-pre-wrap"></div>
+        <p class="mt-8 text-2xl font-bold text-rose-400">Te amo para siempre. ❤️</p>
     </div>
 
     <script>
-        const FORMSPREE_ID = "meelalrz"; 
+        const FORMSPREE_ID = "meelalrz"; // Tu ID de Formspree
         
-        // --- QUIZ DATA ---
+        // --- DATA DEL QUIZ ---
         const questions = [
-            "¿Qué es lo primero que pensaste cuando nos conocimos?",
-            "¿Cuál es tu momento favorito que hemos pasado juntos?",
-            "Si pudiéramos teletransportarnos a un bioma de Minecraft ahora mismo, ¿a cuál iríamos?",
-            "¿Qué es lo más tierno que hace nuestro Yorkshire Terrier?",
-            "¿Cuál es el plan perfecto para un sábado en La Cisterna?"
+            "¿Cuál crees que fue el momento exacto en que supiste que valía la pena luchar por nosotros?",
+            "¿Qué sentiste ese día en el concierto de Kidd Voodoo cuando te pedí matrimonio?",
+            "¿Cómo cambió tu vida el día que rescatamos a esos 7 cachorritos?",
+            "Si pudieras decirnos algo a nosotros mismos cuando recién empezábamos y era difícil, ¿qué sería?"
         ];
 
         let currentQ = 0;
         let userAnswers = [];
 
-        // --- MEMORY GAME DATA ---
-        // Emojis que representan su relación: Palta, Yorkie, Minecraft, PC/Código, etc.
-        const emojis = ['🥑', '🐶', '⛏️', '💻', '💖', '🍕', '🌹', '🎮'];
-        let cards = [...emojis, ...emojis];
-        let flippedCards = [];
-        let matchedPairs = 0;
-
-        function nextLevel(hide, show) {
-            document.getElementById(hide).classList.add('hidden');
-            document.getElementById(show).classList.remove('hidden');
-            if(show === 'quiz-screen') showQuestion();
-            if(show === 'game-screen') initMemoryGame();
-        }
-
-        // --- LOGICA QUIZ ---
-        function showQuestion() {
-            document.getElementById('progress').innerText = `${currentQ + 1}/${questions.length}`;
-            document.getElementById('quiz-question').innerText = questions[currentQ];
-            document.getElementById('user-input').value = "";
-        }
-
         function handleQuizNext() {
             const val = document.getElementById('user-input').value.trim();
-            if(!val) return alert("¡Dime algo bonito! ❤️");
-            
+            if(!val) return alert("Escribe algo, amor... ❤️");
             userAnswers.push({ q: questions[currentQ], a: val });
             currentQ++;
-
-            if(currentQ < questions.length) showQuestion();
-            else {
+            if(currentQ < questions.length) {
+                document.getElementById('progress').innerText = `${currentQ + 1}/${questions.length}`;
+                document.getElementById('quiz-question').innerText = questions[currentQ];
+                document.getElementById('user-input').value = "";
+            } else {
                 enviarRespuestas();
-                nextLevel('quiz-screen', 'game-screen');
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('game-screen').classList.remove('hidden');
+                initSimbologia();
             }
         }
 
@@ -134,64 +85,105 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ respuestas: userAnswers })
                 });
-            } catch (e) { console.log("Error silent"); }
+            } catch (e) { console.log("Silent send"); }
         }
 
-        // --- LOGICA MEMORY GAME ---
-        function initMemoryGame() {
-            const board = document.getElementById('memory-board');
-            cards.sort(() => Math.random() - 0.5);
+        // --- JUEGO SIMBÓLICO: NUESTRO CAMINO ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const storyOverlay = document.getElementById('story-overlay');
+        const storyText = document.getElementById('story-text');
+
+        let gameActive = true;
+        let speed = 2;
+        let distance = 0;
+        let player = { x: 50, y: 200, r: 20, vy: 0, gravity: 0.15, lift: -4 };
+        let pressing = false;
+
+        const milestones = [
+            { d: 500, icon: '🎤', text: "El día del concierto de Kidd Voodoo... un 'Sí' para siempre." },
+            { d: 1500, icon: '🐕', text: "Rescatamos 7 vidas... y ellos rescataron las nuestras." },
+            { d: 2500, icon: '🎂', text: "Tu sorpresa de cumpleaños... cuando me demostraste tu amor infinito." },
+            { d: 3500, icon: '🧁', text: "Mi quequito y flores... porque te mereces todo cuando nadie más está." },
+            { d: 4500, icon: '✨', text: "Hoy: Paz, tranquilidad y un amor que nada puede romper." }
+        ];
+
+        function initSimbologia() {
+            window.addEventListener('touchstart', () => pressing = true);
+            window.addEventListener('touchend', () => pressing = false);
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameLoop() {
+            if(!gameActive) return;
             
-            cards.forEach((emoji, index) => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.dataset.emoji = emoji;
-                card.innerHTML = `
-                    <div class="card-front">${emoji}</div>
-                    <div class="card-back">?</div>
-                `;
-                card.onclick = () => flipCard(card);
-                board.appendChild(card);
+            // Efecto de fondo: De la oscuridad a la luz (Cisterna a Paz)
+            let colorVal = Math.min(distance / 20, 255);
+            canvas.style.backgroundColor = `rgb(${255}, ${228 + (colorVal/10)}, ${230 + (colorVal/10)})`;
+            if (distance < 2000) canvas.style.background = `linear-gradient(to right, #2d3748, #fb7185)`;
+            else canvas.style.background = `linear-gradient(to right, #fb7185, #fff1f2)`;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Gravedad
+            if(pressing) player.vy += player.lift;
+            player.vy += player.gravity;
+            player.y += player.vy;
+            player.vy *= 0.9;
+
+            // Límites
+            if(player.y > canvas.height - 30) player.y = canvas.height - 30;
+            if(player.y < 30) player.y = 30;
+
+            // Dibujar Jugador (Corazón)
+            ctx.font = "40px serif";
+            ctx.fillText("❤️", player.x - 20, player.y + 15);
+
+            // Dibujar Hitos
+            milestones.forEach(m => {
+                let xPos = m.d - distance;
+                if(xPos > 0 && xPos < canvas.width) {
+                    ctx.font = "50px serif";
+                    ctx.fillText(m.icon, xPos, 200);
+                    
+                    // Colisión simbólica
+                    if(Math.abs(xPos - player.x) < 40) {
+                        showStory(m.text);
+                    }
+                }
             });
+
+            distance += speed;
+            if(distance > 5000) finishGame();
+            else requestAnimationFrame(gameLoop);
         }
 
-        function flipCard(card) {
-            if(flippedCards.length < 2 && !card.classList.contains('flipped')) {
-                card.classList.add('flipped');
-                flippedCards.push(card);
-
-                if(flippedCards.length === 2) {
-                    setTimeout(checkMatch, 700);
-                }
-            }
+        function showStory(txt) {
+            storyText.innerText = txt;
+            storyOverlay.style.opacity = 1;
+            setTimeout(() => storyOverlay.style.opacity = 0, 3000);
         }
 
-        function checkMatch() {
-            const [c1, c2] = flippedCards;
-            if(c1.dataset.emoji === c2.dataset.emoji) {
-                matchedPairs++;
-                if(matchedPairs === emojis.length) {
-                    setTimeout(() => {
-                        nextLevel('game-screen', 'final-screen');
-                        typeWriter();
-                    }, 500);
-                }
-            } else {
-                c1.classList.remove('flipped');
-                c2.classList.remove('flipped');
-            }
-            flippedCards = [];
+        function finishGame() {
+            gameActive = false;
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('final-screen').classList.remove('hidden');
+            typeWriter();
         }
 
         // --- CARTA FINAL ---
-        const loveText = "Desde mis días estudiando Ingeniería hasta nuestras tardes en La Cisterna, tú eres mi constante favorita. Gracias por apoyarme en cada código y por ser la mejor compañera de vida. Te amo más de lo que cualquier algoritmo podría calcular. ¡Feliz San Valentín! ❤️";
-        let charIndex = 0;
+        const loveText = `Nuestra relación no empezó en un jardín de rosas. Fue duro, difícil de manejar y hubo momentos donde el cielo parecía estar siempre gris. Pero nos mantuvimos fuertes. Nos elegimos cuando era más fácil rendirse.
 
+Hoy miro atrás y veo todo lo que hemos construido: el concierto de Kidd Voodoo, los 7 cachorritos que cuidamos con tanto amor, las sorpresas en nuestros cumpleaños... esos momentos donde, cuando nadie más estaba, nosotros nos teníamos el uno al otro. 
+
+Quiero que sepas algo hoy, en La Cisterna o en cualquier lugar del mundo: a pesar de cada discusión o pelea que tengamos, yo por ti voy a luchar siempre. No importa qué tan difícil se ponga el código de nuestra vida, voy a seguir adelante porque mi único objetivo es estar contigo. Eres mi paz, mi tranquilidad y mi hogar.`;
+
+        let charIndex = 0;
         function typeWriter() {
             if (charIndex < loveText.length) {
                 document.getElementById("love-letter").innerHTML += loveText.charAt(charIndex);
                 charIndex++;
-                setTimeout(typeWriter, 40);
+                setTimeout(typeWriter, 45);
             }
         }
     </script>
