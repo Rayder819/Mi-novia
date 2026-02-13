@@ -3,53 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>San Valentín Challenge ❤️</title>
+    <title>Nuestra Misión ❤️</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none; }
-        .fade-in { animation: fadeIn 1s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        canvas { border: 2px solid #fb7185; border-radius: 15px; background: white; touch-action: none; }
+        .fade-in { animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        canvas { border: 3px solid #fda4af; border-radius: 20px; background: #fff1f2; touch-action: none; cursor: pointer; }
+        .btn-option { transition: all 0.2s; border: 2px solid transparent; }
+        .btn-option:active { transform: scale(0.98); background-color: #fecdd3; }
     </style>
 </head>
-<body class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
 
-    <div id="start-screen" class="text-center fade-in">
-        <h1 class="text-4xl font-extrabold text-rose-600 mb-6">¡Hola Amor! ❤️</h1>
-        <p class="mb-8 text-lg text-rose-400">He preparado un desafío para ti.<br>¿Estás lista?</p>
-        <button onclick="startQuiz()" class="bg-rose-500 text-white px-8 py-4 rounded-full text-xl shadow-lg active:scale-95 transition">¡Empezar!</button>
+    <div id="start-screen" class="text-center fade-in max-w-sm">
+        <div class="text-6xl mb-6">🎁</div>
+        <h1 class="text-4xl font-extrabold text-rose-600 mb-4">¡Hola Amor!</h1>
+        <p class="mb-8 text-lg text-rose-400 font-medium">He preparado algo especial para ti. Debes superar los desafíos para ver tu regalo.</p>
+        <button onclick="startQuiz()" class="bg-rose-500 text-white px-10 py-4 rounded-full text-xl font-bold shadow-xl hover:bg-rose-600 active:scale-95 transition-all">
+            ¡Aceptar Desafío!
+        </button>
     </div>
 
-    <div id="quiz-screen" class="hidden w-full max-w-md bg-white p-8 rounded-3xl shadow-xl fade-in">
-        <h2 class="text-2xl font-bold mb-4 text-rose-500" id="quiz-question">Pregunta 1</h2>
+    <div id="quiz-screen" class="hidden w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl fade-in">
+        <div class="flex justify-between items-center mb-6">
+            <span class="text-rose-300 font-bold uppercase tracking-widest text-sm">Nivel 1: El Test</span>
+            <span id="progress" class="text-rose-500 font-bold">1/5</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-6 text-slate-700" id="quiz-question">Cargando pregunta...</h2>
         <div id="quiz-options" class="flex flex-col gap-4">
             </div>
     </div>
 
     <div id="game-screen" class="hidden text-center fade-in">
-        <h2 class="text-2xl font-bold mb-4 text-rose-500 text-center">Nivel 2: ¡Atrapa 10 Corazones!</h2>
-        <p class="mb-2">Puntos: <span id="score">0</span></p>
-        <canvas id="gameCanvas" width="300" height="400" class="mx-auto shadow-inner"></canvas>
+        <h2 class="text-2xl font-bold mb-2 text-rose-500">Nivel 2: Atrapa los Corazones</h2>
+        <p class="mb-4 text-slate-500 italic">Toca 10 corazones para desbloquear la carta</p>
+        <div class="relative inline-block">
+            <canvas id="gameCanvas" width="320" height="420" class="shadow-2xl"></canvas>
+            <div class="absolute top-4 right-4 bg-white/80 px-4 py-1 rounded-full font-bold text-rose-600 shadow-sm">
+                ❤️ <span id="score">0</span>
+            </div>
+        </div>
     </div>
 
-    <div id="final-screen" class="hidden max-w-lg bg-white p-10 rounded-3xl shadow-2xl fade-in text-center">
-        <div class="mb-6">
-            <img src="https://via.placeholder.com/300" id="final-photo" class="rounded-2xl mx-auto shadow-md border-4 border-rose-200">
+    <div id="final-screen" class="hidden max-w-lg w-full bg-white p-8 rounded-3xl shadow-2xl fade-in text-center overflow-y-auto max-h-[90vh]">
+        <div class="mb-6 relative inline-block">
+            <img src="https://via.placeholder.com/400x300" id="final-photo" class="rounded-2xl mx-auto shadow-lg border-4 border-rose-100 object-cover">
+            <div class="absolute -bottom-3 -right-3 bg-rose-500 text-white p-2 rounded-full shadow-lg">❤️</div>
         </div>
-        <h2 class="text-3xl font-bold text-rose-600 mb-4 italic text-center">Para mi persona favorita...</h2>
-        <p id="love-letter" class="text-lg text-slate-700 leading-relaxed text-justify">
-            </p>
+        <h2 class="text-3xl font-bold text-rose-600 mb-6 italic">Para mi persona favorita...</h2>
+        <div id="love-letter" class="text-lg text-slate-700 leading-relaxed text-left bg-rose-50 p-6 rounded-2xl border-l-4 border-rose-400 min-h-[150px]">
+            </div>
+        <p class="mt-8 text-rose-300 font-medium italic">¡Feliz San Valentín! ❤️</p>
     </div>
 
     <script>
-        // --- LÓGICA DEL QUIZ ---
-        const quizData = [
-            { q: "¿Cuál fue nuestra primera película juntos?", a: ["Interestelar", "Shrek", "Titanic"], correct: 1 },
-            { q: "¿En qué mes nos conocimos?", a: ["Marzo", "Agosto", "Enero"], correct: 0 },
-            { q: "¿Cuál es mi comida favorita que tú preparas?", a: ["Pasta", "Tacos", "Paltas con algo"], correct: 2 }
-        ];
-        let currentQ = 0;
+        // --- CONFIGURACIÓN ---
+        const FORMSPREE_ID = "TU_ID_AQUÍ"; // Pon aquí tu ID de Formspree
 
+        // Preguntas personalizadas basadas en tu historia
+        const quizData = [
+            { 
+                q: "¿Cómo se llama el local de mis papás en la feria de Algarrobo?", 
+                a: ["La Picá de la Fruta", "El Rey de las Paltas", "El Puesto 19", "Donde el Vecino"], 
+                correct: 1 // El Rey de las Paltas
+            },
+            { 
+                q: "¿Qué raza es nuestro pequeño compañero de cuatro patas?", 
+                a: ["Poodle", "Chihuahua", "Yorkshire Terrier", "Mestizo"], 
+                correct: 2 // Yorkshire Terrier
+            },
+            { 
+                q: "¿En qué comuna de Santiago vivo actualmente?", 
+                a: ["San Ramón", "La Cisterna", "La Granja", "El Bosque"], 
+                correct: 1 // La Cisterna
+            },
+            { 
+                q: "¿Qué carrera estoy sufriendo/disfrutando en la universidad?", 
+                a: ["Ingeniería Civil Industrial", "Ingeniería Civil en Computación", "Derecho", "Medicina"], 
+                correct: 1 // Ingeniería Civil en Computación
+            },
+            { 
+                q: "Si vamos a comer algo rico, ¿cómo le decimos al ingrediente verde?", 
+                a: ["Aguacate", "Guacamole", "Palta", "Verdura"], 
+                correct: 2 // Palta
+            }
+        ];
+
+        let currentQ = 0;
+        let userAnswers = [];
+
+        // --- LÓGICA DEL QUIZ ---
         function startQuiz() {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.remove('hidden');
@@ -58,12 +102,15 @@
 
         function showQuestion() {
             const q = quizData[currentQ];
+            document.getElementById('progress').innerText = `${currentQ + 1}/${quizData.length}`;
             document.getElementById('quiz-question').innerText = q.q;
+            
             const container = document.getElementById('quiz-options');
             container.innerHTML = '';
+            
             q.a.forEach((opt, i) => {
                 const btn = document.createElement('button');
-                btn.className = "bg-rose-100 p-4 rounded-xl hover:bg-rose-200 active:bg-rose-300 transition text-left font-medium";
+                btn.className = "btn-option bg-rose-50 p-5 rounded-2xl hover:bg-rose-100 text-left font-semibold text-slate-700 shadow-sm";
                 btn.innerText = opt;
                 btn.onclick = () => checkAnswer(i);
                 container.appendChild(btn);
@@ -71,20 +118,42 @@
         }
 
         function checkAnswer(i) {
+            userAnswers.push({ pregunta: quizData[currentQ].q, respuesta: quizData[currentQ].a[i] });
+
             if(i === quizData[currentQ].correct) {
                 currentQ++;
-                if(currentQ < quizData.length) showQuestion();
-                else startGame();
+                if(currentQ < quizData.length) {
+                    showQuestion();
+                } else {
+                    enviarRespuestas(); // Enviamos al correo
+                    startGame();
+                }
             } else {
-                alert("¡Nop! Intenta de nuevo, sé que lo sabes 👀");
+                alert("¡Casi! Inténtalo de nuevo amor ❤️");
             }
         }
 
-        // --- LÓGICA MINI JUEGO ---
+        // --- ENVÍO DE DATOS A TU EMAIL ---
+        async function enviarRespuestas() {
+            if(FORMSPREE_ID === "TU_ID_AQUÍ") return;
+
+            try {
+                await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject: "¡Completó el Desafío de San Valentín!",
+                        respuestas: userAnswers
+                    })
+                });
+            } catch (e) { console.error("Error al enviar datos"); }
+        }
+
+        // --- LÓGICA MINI JUEGO (CANVAS) ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         let score = 0;
-        let heart = { x: 0, y: 0, r: 25 };
+        let heart = { x: 0, y: 0, r: 30 };
 
         function startGame() {
             document.getElementById('quiz-screen').classList.add('hidden');
@@ -94,17 +163,20 @@
         }
 
         function spawnHeart() {
-            heart.x = Math.random() * (canvas.width - 50) + 25;
-            heart.y = Math.random() * (canvas.height - 50) + 25;
+            heart.x = Math.random() * (canvas.width - 60) + 30;
+            heart.y = Math.random() * (canvas.height - 60) + 30;
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = "40px serif";
-            ctx.fillText("❤️", heart.x - 20, heart.y + 15);
+            ctx.font = "50px serif";
+            ctx.textAlign = "center";
+            ctx.fillText("❤️", heart.x, heart.y + 15);
         }
 
+        // Optimizado para iPad (Touch)
         canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
             const rect = canvas.getBoundingClientRect();
             const touchX = e.touches[0].clientX - rect.left;
             const touchY = e.touches[0].clientY - rect.top;
@@ -113,22 +185,23 @@
             if(dist < heart.r + 20) {
                 score++;
                 document.getElementById('score').innerText = score;
-                if(score >= 10) finishGame();
-                else {
+                if(score >= 10) {
+                    showFinalScreen();
+                } else {
                     spawnHeart();
                     draw();
                 }
             }
         });
 
-        function finishGame() {
+        // --- CARTA FINAL ---
+        function showFinalScreen() {
             document.getElementById('game-screen').classList.add('hidden');
             document.getElementById('final-screen').classList.remove('hidden');
             typeWriter();
         }
 
-        // --- LÓGICA CARTA ---
-        const text = "Desde que estamos juntos, cada día se siente como un 14 de febrero. Gracias por ser mi compañera en este camino de códigos y aventuras. Te amo más de lo que un loop infinito puede expresar...";
+        const text = "Desde que estamos juntos, cada día se siente como un 14 de febrero. Gracias por ser mi compañera en este camino de códigos, estudios y aventuras. Eres la mejor parte de mis días en La Cisterna y me encanta que compartamos incluso el gusto por jugar Minecraft. Te amo más de lo que un loop infinito puede expresar...";
         let charIndex = 0;
 
         function typeWriter() {
