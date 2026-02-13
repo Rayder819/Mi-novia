@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>San Valentín Challenge ❤️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 1s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        canvas { border: 2px solid #fb7185; border-radius: 15px; background: white; touch-action: none; }
+    </style>
+</head>
+<body class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="start-screen" class="text-center fade-in">
+        <h1 class="text-4xl font-extrabold text-rose-600 mb-6">¡Hola Amor! ❤️</h1>
+        <p class="mb-8 text-lg text-rose-400">He preparado un desafío para ti.<br>¿Estás lista?</p>
+        <button onclick="startQuiz()" class="bg-rose-500 text-white px-8 py-4 rounded-full text-xl shadow-lg active:scale-95 transition">¡Empezar!</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden w-full max-w-md bg-white p-8 rounded-3xl shadow-xl fade-in">
+        <h2 class="text-2xl font-bold mb-4 text-rose-500" id="quiz-question">Pregunta 1</h2>
+        <div id="quiz-options" class="flex flex-col gap-4">
+            </div>
+    </div>
+
+    <div id="game-screen" class="hidden text-center fade-in">
+        <h2 class="text-2xl font-bold mb-4 text-rose-500 text-center">Nivel 2: ¡Atrapa 10 Corazones!</h2>
+        <p class="mb-2">Puntos: <span id="score">0</span></p>
+        <canvas id="gameCanvas" width="300" height="400" class="mx-auto shadow-inner"></canvas>
+    </div>
+
+    <div id="final-screen" class="hidden max-w-lg bg-white p-10 rounded-3xl shadow-2xl fade-in text-center">
+        <div class="mb-6">
+            <img src="https://via.placeholder.com/300" id="final-photo" class="rounded-2xl mx-auto shadow-md border-4 border-rose-200">
+        </div>
+        <h2 class="text-3xl font-bold text-rose-600 mb-4 italic text-center">Para mi persona favorita...</h2>
+        <p id="love-letter" class="text-lg text-slate-700 leading-relaxed text-justify">
+            </p>
+    </div>
+
+    <script>
+        // --- LÓGICA DEL QUIZ ---
+        const quizData = [
+            { q: "¿Cuál fue nuestra primera película juntos?", a: ["Interestelar", "Shrek", "Titanic"], correct: 1 },
+            { q: "¿En qué mes nos conocimos?", a: ["Marzo", "Agosto", "Enero"], correct: 0 },
+            { q: "¿Cuál es mi comida favorita que tú preparas?", a: ["Pasta", "Tacos", "Paltas con algo"], correct: 2 }
+        ];
+        let currentQ = 0;
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = quizData[currentQ];
+            document.getElementById('quiz-question').innerText = q.q;
+            const container = document.getElementById('quiz-options');
+            container.innerHTML = '';
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = "bg-rose-100 p-4 rounded-xl hover:bg-rose-200 active:bg-rose-300 transition text-left font-medium";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(i) {
+            if(i === quizData[currentQ].correct) {
+                currentQ++;
+                if(currentQ < quizData.length) showQuestion();
+                else startGame();
+            } else {
+                alert("¡Nop! Intenta de nuevo, sé que lo sabes 👀");
+            }
+        }
+
+        // --- LÓGICA MINI JUEGO ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let score = 0;
+        let heart = { x: 0, y: 0, r: 25 };
+
+        function startGame() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            spawnHeart();
+            draw();
+        }
+
+        function spawnHeart() {
+            heart.x = Math.random() * (canvas.width - 50) + 25;
+            heart.y = Math.random() * (canvas.height - 50) + 25;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "40px serif";
+            ctx.fillText("❤️", heart.x - 20, heart.y + 15);
+        }
+
+        canvas.addEventListener('touchstart', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - rect.left;
+            const touchY = e.touches[0].clientY - rect.top;
+            
+            const dist = Math.hypot(touchX - heart.x, touchY - heart.y);
+            if(dist < heart.r + 20) {
+                score++;
+                document.getElementById('score').innerText = score;
+                if(score >= 10) finishGame();
+                else {
+                    spawnHeart();
+                    draw();
+                }
+            }
+        });
+
+        function finishGame() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('final-screen').classList.remove('hidden');
+            typeWriter();
+        }
+
+        // --- LÓGICA CARTA ---
+        const text = "Desde que estamos juntos, cada día se siente como un 14 de febrero. Gracias por ser mi compañera en este camino de códigos y aventuras. Te amo más de lo que un loop infinito puede expresar...";
+        let charIndex = 0;
+
+        function typeWriter() {
+            if (charIndex < text.length) {
+                document.getElementById("love-letter").innerHTML += text.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 50);
+            }
+        }
+    </script>
+</body>
+</html>
