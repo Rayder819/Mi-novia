@@ -23,7 +23,7 @@
     <div id="quiz-screen" class="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl fade-in">
         <div class="flex justify-between items-center mb-6">
             <span class="text-rose-300 font-bold uppercase tracking-widest text-xs">Misión 1: Reflexión</span>
-            <span id="progress" class="text-rose-500 font-bold">1/4</span>
+            <span id="progress" class="text-rose-500 font-bold">1/5</span>
         </div>
         <h2 class="text-2xl font-bold mb-4 text-slate-700" id="quiz-question">Cargando...</h2>
         <textarea id="user-input" rows="3" class="w-full p-4 border-2 border-rose-100 rounded-2xl focus:border-rose-400 focus:outline-none transition-colors resize-none mb-6" placeholder="Responde de corazón..."></textarea>
@@ -55,7 +55,8 @@
             "¿Cuál crees que fue el momento exacto en que supiste que valía la pena luchar por nosotros?",
             "¿Qué sentiste ese día en el concierto de Kidd Voodoo cuando te pedí matrimonio?",
             "¿Cómo cambió tu vida el día que rescatamos a esos 7 cachorritos?",
-            "Si pudieras decirnos algo a nosotros mismos cuando recién empezábamos y era difícil, ¿qué sería?"
+            "Si pudieras decirnos algo a nosotros mismos cuando recién empezábamos y era difícil, ¿qué sería?",
+            "¿Qué es lo que más valoras de nuestra relación después de todo lo que hemos pasado?"
         ];
 
         let currentQ = 0;
@@ -103,9 +104,9 @@
         const milestones = [
             { d: 500, icon: '🎤', text: "El día del concierto de Kidd Voodoo... un 'Sí' para siempre." },
             { d: 1500, icon: '🐕', text: "Rescatamos 7 vidas... y ellos rescataron las nuestras." },
-            { d: 2500, icon: '🎂', text: "Tu sorpresa de cumpleaños... cuando me demostraste tu amor infinito." },
-            { d: 3500, icon: '🧁', text: "Mi quequito y flores... porque te mereces todo cuando nadie más está." },
-            { d: 4500, icon: '✨', text: "Hoy: Paz, tranquilidad y un amor que nada puede romper." }
+            { d: 2500, icon: '🧁', text: "Mi quequito y flores... porque te mereces todo cuando nadie más está." },
+            { d: 3500, icon: '🎂', text: "Tu sorpresa de cumpleaños... cuando me demostraste tu amor infinito." },
+            { d: 4500, icon: '✨', text: "Hoy: sueños, metas por cumplir, mejorar cada uno y mutuamente porque nos elegimos y porque nos amamos" }
         ];
 
         function initSimbologia() {
@@ -129,7 +130,7 @@
             if(pressing) player.vy += player.lift;
             player.vy += player.gravity;
             player.y += player.vy;
-            player.vy *= 0.9;
+            player.vy *= 0.7;
 
             // Límites
             if(player.y > canvas.height - 30) player.y = canvas.height - 30;
@@ -174,9 +175,11 @@
         // --- CARTA FINAL ---
         const loveText = `Nuestra relación no empezó en un jardín de rosas. Fue duro, difícil de manejar y hubo momentos donde el cielo parecía estar siempre gris. Pero nos mantuvimos fuertes. Nos elegimos cuando era más fácil rendirse.
 
-Hoy miro atrás y veo todo lo que hemos construido: el concierto de Kidd Voodoo, los 7 cachorritos que cuidamos con tanto amor, las sorpresas en nuestros cumpleaños... esos momentos donde, cuando nadie más estaba, nosotros nos teníamos el uno al otro. 
+Hoy miro atrás y veo todo lo que hemos construido de algunos momentos que siempre viven en mi cabeza. En el concierto de Kidd Voodoo, los 7 cachorritos que cuidamos con tanto amor, cuando te tatuaste mi inicial, las sorpresas en nuestros cumpleaños... esos momentos donde, cuando nadie más estaba, nosotros nos teníamos el uno al otro. 
 
-Quiero que sepas algo hoy, en La Cisterna o en cualquier lugar del mundo: a pesar de cada discusión o pelea que tengamos, yo por ti voy a luchar siempre. No importa qué tan difícil se ponga el código de nuestra vida, voy a seguir adelante porque mi único objetivo es estar contigo. Eres mi paz, mi tranquilidad y mi hogar.`;
+Quiero que sepas algo hoy, en cualquier lugar del mundo: a pesar de cada discusión o pelea que tengamos, yo por ti voy a luchar siempre. No importa qué tan difícil se ponga el destino de nuestra vida, voy a seguir adelante porque mi único objetivo es estar contigo. Eres mi paz, mi tranquilidad y mi hogar,
+
+Y no hay nada que me haga más feliz que saber que tú también sientes lo mismo por mí. Te amo con todo mi corazón, y siempre lo haré. Mi julieta (El Amor De Mi Vida) ❤️`;
 
         let charIndex = 0;
         function typeWriter() {
