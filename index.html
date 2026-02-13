@@ -16,9 +16,11 @@
             background: #1a1a1a; 
             transition: background 5s ease;
         }
+        /* Clase para permitir scroll solo al final */
+        .allow-scroll { overflow-y: auto !important; overflow-x: hidden; }
     </style>
 </head>
-<body class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
+<body id="main-body" class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
 
     <div id="start-screen" class="text-center fade-in max-w-sm">
         <div class="text-6xl mb-6">💌</div>
@@ -41,7 +43,7 @@
 
     <div id="game-screen" class="hidden text-center fade-in w-full max-w-4xl">
         <h2 class="text-2xl font-bold mb-2 text-rose-500">Nuestra Trayectoria</h2>
-        <p id="game-instruction" class="mb-4 text-slate-500 italic">Mantén presionado para elevar nuestro amor y recolectar los recuerdos</p>
+        <p class="mb-4 text-slate-500 italic">Mantén presionado para elevar nuestro amor</p>
         <div class="relative inline-block w-full">
             <canvas id="gameCanvas" width="800" height="400" class="w-full h-auto"></canvas>
             <div id="story-overlay" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-1000">
@@ -50,13 +52,13 @@
         </div>
     </div>
 
-    <div id="final-screen" class="hidden max-w-2xl w-full bg-white p-10 rounded-3xl shadow-2xl fade-in text-center max-h-[90vh] overflow-y-auto">
+    <div id="final-screen" class="hidden max-w-2xl w-full bg-white p-10 rounded-3xl shadow-2xl fade-in text-center my-8">
         <h2 class="text-4xl font-bold text-rose-600 mb-8 italic">Pese a todo, siempre tú...</h2>
         
         <div id="love-letter" class="text-lg text-slate-700 leading-relaxed text-left bg-rose-50 p-8 rounded-2xl border-l-8 border-rose-400 whitespace-pre-wrap mb-8"></div>
         
-        <div class="fade-in" style="animation-delay: 2s;"> 
-            <img src="nosotros.jpg" alt="Nosotros" class="rounded-2xl mx-auto shadow-2xl border-4 border-white transform hover:scale-105 transition-transform duration-500 max-w-full h-auto mb-6">
+        <div class="fade-in" style="animation-delay: 1s;"> 
+            <img src="nosotros.jpg" alt="Nosotros" class="rounded-2xl mx-auto shadow-2xl border-4 border-white max-w-full h-auto mb-6">
             <p class="text-2xl font-bold text-rose-400 mb-4">Te amo para siempre. ❤️</p>
         </div>
     </div>
@@ -66,7 +68,7 @@
         
         const questions = [
             "¿Cuál crees que fue el momento exacto en que supiste que valía la pena luchar por nosotros?",
-            "¿Qué sentiste ese día en q nos dimos cuenta que somos muy compatibles a pesar de ser tan diferentes?",
+            "¿Qué sentiste ese día en q nos dimos que somos muy compatibles a pesar de ser tan diferentes?",
             "¿Cómo cambió tu vida el día que rescatamos a esos 7 cachorritos?",
             "Si pudieras decirnos algo a nosotros mismos cuando recién empezábamos y era difícil, ¿qué sería?",
             "¿Qué es lo que más valoras de nuestra relación después de todo lo que hemos pasado?"
@@ -108,7 +110,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ respuestas: userAnswers })
                 });
-            } catch (e) { console.log("Silent send"); }
+            } catch (e) { console.log("Sent"); }
         }
 
         const canvas = document.getElementById('gameCanvas');
@@ -131,7 +133,9 @@
         ];
 
         function initSimbologia() {
-            window.addEventListener('touchstart', (e) => { e.preventDefault(); pressing = true; }, {passive: false});
+            window.addEventListener('touchstart', (e) => { 
+                if(gameActive) { e.preventDefault(); pressing = true; }
+            }, {passive: false});
             window.addEventListener('touchend', () => pressing = false);
             requestAnimationFrame(gameLoop);
         }
@@ -155,9 +159,7 @@
                 if(xPos > 0 && xPos < canvas.width) {
                     ctx.font = "50px serif";
                     ctx.fillText(m.icon, xPos, 200);
-                    if(Math.abs(xPos - player.x) < 40) {
-                        showStory(m.text);
-                    }
+                    if(Math.abs(xPos - player.x) < 40) { showStory(m.text); }
                 }
             });
             distance += speed;
@@ -173,6 +175,11 @@
 
         function finishGame() {
             gameActive = false;
+            // IMPORTANTE: Liberamos el scroll del body
+            const body = document.getElementById('main-body');
+            body.classList.remove('overflow-hidden');
+            body.classList.add('allow-scroll');
+            
             nextLevel('game-screen', 'final-screen');
             typeWriter();
         }
