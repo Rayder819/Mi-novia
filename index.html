@@ -16,8 +16,9 @@
             background: #1a1a1a; 
             transition: background 5s ease;
         }
-        /* Clase para permitir scroll solo al final */
         .allow-scroll { overflow-y: auto !important; overflow-x: hidden; }
+        .btn-adventure { transition: all 0.2s; border: 2px solid #fecdd3; }
+        .btn-adventure:active { transform: scale(0.95); background-color: #fff1f2; }
     </style>
 </head>
 <body id="main-body" class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
@@ -25,7 +26,7 @@
     <div id="start-screen" class="text-center fade-in max-w-sm">
         <div class="text-6xl mb-6">💌</div>
         <h1 class="text-4xl font-extrabold text-rose-600 mb-4">¡Hola Amor!</h1>
-        <p class="mb-8 text-lg text-rose-400 font-medium">He preparado unas preguntas para ti antes de mostrarte tu sorpresa. ¿Lista?</p>
+        <p class="mb-8 text-lg text-rose-400 font-medium">He preparado un viaje por nuestra historia. ¿Lista para empezar?</p>
         <button onclick="nextLevel('start-screen', 'quiz-screen')" class="bg-rose-500 text-white px-10 py-4 rounded-full text-xl font-bold shadow-xl active:scale-95 transition-all">
             ¡Empezar!
         </button>
@@ -41,9 +42,17 @@
         <button onclick="handleQuizNext()" class="w-full bg-rose-500 text-white py-4 rounded-2xl font-bold text-lg shadow-lg active:scale-95 transition-all">Siguiente</button>
     </div>
 
+    <div id="adventure-screen" class="hidden w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl fade-in text-center">
+        <span class="text-rose-300 font-bold uppercase tracking-widest text-xs mb-4 block">Misión 2: Nuestra Aventura</span>
+        <div id="adventure-content">
+            <h2 id="adventure-question" class="text-2xl font-bold mb-6 text-slate-700"></h2>
+            <div id="adventure-options" class="flex flex-col gap-4"></div>
+        </div>
+    </div>
+
     <div id="game-screen" class="hidden text-center fade-in w-full max-w-4xl">
         <h2 class="text-2xl font-bold mb-2 text-rose-500">Nuestra Trayectoria</h2>
-        <p class="mb-4 text-slate-500 italic">Mantén presionado para elevar nuestro amor</p>
+        <p class="mb-4 text-slate-500 italic text-sm">Mantén presionado para elevar nuestro amor y recolectar los recuerdos</p>
         <div class="relative inline-block w-full">
             <canvas id="gameCanvas" width="800" height="400" class="w-full h-auto"></canvas>
             <div id="story-overlay" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-1000">
@@ -54,10 +63,8 @@
 
     <div id="final-screen" class="hidden max-w-2xl w-full bg-white p-10 rounded-3xl shadow-2xl fade-in text-center my-8">
         <h2 class="text-4xl font-bold text-rose-600 mb-8 italic">Pese a todo, siempre tú...</h2>
-        
-        <div id="love-letter" class="text-lg text-slate-700 leading-relaxed text-left bg-rose-50 p-8 rounded-2xl border-l-8 border-rose-400 whitespace-pre-wrap mb-8"></div>
-        
-        <div class="fade-in" style="animation-delay: 1s;"> 
+        <div id="love-letter" class="text-lg text-slate-700 leading-relaxed text-left bg-rose-50 p-8 rounded-2xl border-l-8 border-rose-400 whitespace-pre-wrap mb-8 italic"></div>
+        <div class="fade-in" style="animation-delay: 1.5s;"> 
             <img src="nosotros.JPG" alt="Nosotros" class="rounded-2xl mx-auto shadow-2xl border-4 border-white max-w-full h-auto mb-6">
             <p class="text-2xl font-bold text-rose-400 mb-4">Te amo para siempre. ❤️</p>
         </div>
@@ -66,6 +73,7 @@
     <script>
         const FORMSPREE_ID = "meelalrz"; 
         
+        // --- DATA QUIZ ---
         const questions = [
             "¿Cuál crees que fue el momento exacto en que supiste que valía la pena luchar por nosotros?",
             "¿Qué sentiste ese día en q nos dimos que somos muy compatibles a pesar de ser tan diferentes?",
@@ -74,20 +82,57 @@
             "¿Qué es lo que más valoras de nuestra relación después de todo lo que hemos pasado?"
         ];
 
+        // --- DATA AVENTURA ---
+        const adventureData = {
+            inicio: {
+                q: "Te veo por primera vez... ¿qué crees que hice?",
+                options: [
+                    { t: "Me hice el interesante 😎", next: "interesante" },
+                    { t: "Me puse nervioso 🥺", next: "nervioso" },
+                    { t: "Te hablé directo 💬", next: "directo" }
+                ]
+            },
+            interesante: {
+                q: "Traté de lucir cool, pero por dentro estaba colapsando. ¿Qué pensaste tú?",
+                options: [
+                    { t: "Que era un pesado 😂", next: "final_aventura" },
+                    { t: "Que te llamé la atención ✨", next: "final_aventura" }
+                ]
+            },
+            nervioso: {
+                q: "Casi no podía ni articular palabra. ¿Qué hiciste tú para ayudarme?",
+                options: [
+                    { t: "Me sonreíste con ternura ❤️", next: "final_aventura" },
+                    { t: "Me hiciste una broma 🤡", next: "final_aventura" }
+                ]
+            },
+            directo: {
+                q: "Fui directo al grano, ¡no quería perder tiempo! ¿Te asusté?",
+                options: [
+                    { t: "Un poquito, pero me gustó 😳", next: "final_aventura" },
+                    { t: "No, me pareció valiente 💪", next: "final_aventura" }
+                ]
+            },
+            final_aventura: {
+                q: "Sin importar el camino que tomamos ese día o las decisiones que tomemos hoy...",
+                options: [
+                    { t: "SIEMPRE TE ELIJO A TI ❤️", next: "FIN" }
+                ]
+            }
+        };
+
         let currentQ = 0;
         let userAnswers = [];
 
         function nextLevel(hideId, showId) {
             document.getElementById(hideId).classList.add('hidden');
             document.getElementById(showId).classList.remove('hidden');
-            if (showId === 'quiz-screen') {
-                document.getElementById('quiz-question').innerText = questions[currentQ];
-            }
-            if (showId === 'game-screen') {
-                initSimbologia();
-            }
+            if (showId === 'quiz-screen') document.getElementById('quiz-question').innerText = questions[currentQ];
+            if (showId === 'adventure-screen') showAdventure('inicio');
+            if (showId === 'game-screen') initSimbologia();
         }
 
+        // --- LÓGICA QUIZ ---
         function handleQuizNext() {
             const val = document.getElementById('user-input').value.trim();
             if(!val) return alert("Escribe algo, amor... ❤️");
@@ -99,8 +144,27 @@
                 document.getElementById('user-input').value = "";
             } else {
                 enviarRespuestas();
-                nextLevel('quiz-screen', 'game-screen');
+                nextLevel('quiz-screen', 'adventure-screen');
             }
+        }
+
+        // --- LÓGICA AVENTURA ---
+        function showAdventure(step) {
+            const data = adventureData[step];
+            document.getElementById('adventure-question').innerText = data.q;
+            const container = document.getElementById('adventure-options');
+            container.innerHTML = '';
+            
+            data.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "btn-adventure bg-white p-4 rounded-2xl font-semibold shadow-sm text-rose-500 border-2 border-rose-100 hover:bg-rose-50";
+                btn.innerText = opt.t;
+                btn.onclick = () => {
+                    if(opt.next === "FIN") nextLevel('adventure-screen', 'game-screen');
+                    else showAdventure(opt.next);
+                };
+                container.appendChild(btn);
+            });
         }
 
         async function enviarRespuestas() {
@@ -113,6 +177,7 @@
             } catch (e) { console.log("Sent"); }
         }
 
+        // --- LÓGICA JUEGO SIMBÓLICO ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const storyOverlay = document.getElementById('story-overlay');
@@ -125,11 +190,11 @@
         let pressing = false;
 
         const milestones = [
-            { d: 500, icon: '🎤', text: "El día del concierto de Kidd Voodoo... solo tu y yo sabemos." },
+            { d: 500, icon: '🎤', text: "El día del concierto de Kidd Voodoo... solo tú y yo sabemos." },
             { d: 1500, icon: '🐕', text: "Rescatamos 7 vidas... y ellos rescataron las nuestras." },
             { d: 2500, icon: '🧁', text: "Mi quequito y flores... porque te mereces todo cuando nadie más está." },
             { d: 3500, icon: '🎂', text: "Tu sorpresa de cumpleaños... cuando me demostraste tu amor infinito." },
-            { d: 4500, icon: '✨', text: "Hoy: sueños, metas por cumplir, mejorar cada uno y mutuamente porque nos elegimos y porque nos amamos" }
+            { d: 4500, icon: '✨', text: "Hoy: sueños, metas por cumplir y un amor que nada rompe." }
         ];
 
         function initSimbologia() {
@@ -142,7 +207,6 @@
 
         function gameLoop() {
             if(!gameActive) return;
-            let colorVal = Math.min(distance / 20, 255);
             if (distance < 2000) canvas.style.background = `linear-gradient(to right, #2d3748, #fb7185)`;
             else canvas.style.background = `linear-gradient(to right, #fb7185, #fff1f2)`;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -159,7 +223,7 @@
                 if(xPos > 0 && xPos < canvas.width) {
                     ctx.font = "50px serif";
                     ctx.fillText(m.icon, xPos, 200);
-                    if(Math.abs(xPos - player.x) < 40) { showStory(m.text); }
+                    if(Math.abs(xPos - player.x) < 40) showStory(m.text);
                 }
             });
             distance += speed;
@@ -175,11 +239,9 @@
 
         function finishGame() {
             gameActive = false;
-            // IMPORTANTE: Liberamos el scroll del body
             const body = document.getElementById('main-body');
             body.classList.remove('overflow-hidden');
             body.classList.add('allow-scroll');
-            
             nextLevel('game-screen', 'final-screen');
             typeWriter();
         }
