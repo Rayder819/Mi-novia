@@ -222,19 +222,24 @@
         let currentLockQ = 0;
 
         function nextLevel(hideId, showId) {
-            if (musica.paused) {
-        musica.play().catch(e => console.log("El audio requiere interacción"));
-        musica.volume = 0.4; // Empezamos con volumen suave para el ambiente
-    }
-            document.getElementById(hideId).classList.add('hidden');
-            document.getElementById(showId).classList.remove('hidden');
-            if (showId === 'quiz-screen') document.getElementById('quiz-question').innerText = questions[currentQ];
-            if (showId === 'adventure-screen') showAdventure('inicio');
-            if (showId === 'game-screen') initSimbologia();
-            if (showId === 'lock-screen') showLock();
-            if (showId === 'puzzle-screen') initPuzzle();
+    // Definimos la variable 'musica' obteniendo el elemento por su ID
+    const musica = document.getElementById('musica-fondo'); 
     
-        }
+    // Ahora que existe, verificamos si está pausada para iniciarla
+    if (musica && musica.paused) {
+        musica.play().catch(e => console.log("El audio requiere interacción"));
+        musica.volume = 0.4; 
+    }
+
+    document.getElementById(hideId).classList.add('hidden');
+    document.getElementById(showId).classList.remove('hidden');
+
+    if (showId === 'quiz-screen') document.getElementById('quiz-question').innerText = questions[currentQ];
+    if (showId === 'adventure-screen') showAdventure('inicio');
+    if (showId === 'game-screen') initSimbologia();
+    if (showId === 'lock-screen') showLock();
+    if (showId === 'puzzle-screen') initPuzzle();
+}
 
         function handleQuizNext() {
             const val = document.getElementById('user-input').value.trim();
