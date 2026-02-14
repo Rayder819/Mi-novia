@@ -120,15 +120,40 @@
         </div>
     </div>
 
-    <div id="final-screen" class="hidden max-w-2xl w-full bg-white p-10 rounded-3xl shadow-2xl fade-in text-center my-8">
-        <h2 class="text-4xl font-bold text-rose-600 mb-8 italic">Pese a todo, siempre tú...</h2>
-        <div id="love-letter" class="text-lg text-slate-700 leading-relaxed text-left bg-rose-50 p-8 rounded-2xl border-l-8 border-rose-400 whitespace-pre-wrap mb-8 italic"></div>
-        <div class="fade-in" style="animation-delay: 1.5s;"> 
-            <img src="nosotros.JPG" alt="Nosotros" class="rounded-2xl mx-auto shadow-2xl border-4 border-white max-w-full h-auto mb-6">
-            <p class="text-2xl font-bold text-rose-400 mb-4">Te amo para siempre. ❤️</p>
+    <div id="final-screen" class="hidden fixed inset-0 bg-slate-900 z-50 flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
+    <div class="max-w-2xl w-full space-y-12">
+        <div id="epic-sequence" class="space-y-12">
+            <div class="step hidden fade-in"><img src="img1.JPG" class="rounded-2xl mx-auto shadow-2xl border-4 border-rose-500/30 max-h-64"><p class="text-2xl text-rose-100 mt-4 italic">“Somos amorosos…”</p></div>
+            <div class="step hidden fade-in"><img src="img2.JPG" class="rounded-2xl mx-auto shadow-2xl border-4 border-rose-500/30 max-h-64"><p class="text-2xl text-rose-100 mt-4 italic">“Somos intensos…”</p></div>
+            <div class="step hidden fade-in"><img src="img3.JPG" class="rounded-2xl mx-auto shadow-2xl border-4 border-rose-500/30 max-h-64"><p class="text-2xl text-rose-100 mt-4 italic">“Somos un poquito cursis…”</p></div>
+            <div class="step hidden fade-in"><img src="img4.JPG" class="rounded-2xl mx-auto shadow-2xl border-4 border-rose-500/30 max-h-64"><p class="text-2xl text-rose-100 mt-4 italic">“Y me encanta que seamos de todo…”</p></div>
+            
+            <div class="step hidden fade-in pb-12">
+                <img src="nosotros.JPG" class="rounded-2xl mx-auto shadow-2xl border-8 border-rose-600 max-h-80 mb-6">
+                <h2 class="text-3xl font-bold text-rose-400">Pero sobre todo…</h2>
+                <h1 class="text-5xl font-black text-white mt-2 mb-8">SOMOS NOSOTROS ❤️</h1>
+                
+                <div id="love-letter" class="text-lg text-slate-300 leading-relaxed text-left bg-slate-800/50 p-8 rounded-2xl border-l-8 border-rose-600 whitespace-pre-wrap"></div>
+                
+                <div class="mt-12 pt-8 border-t border-slate-700">
+                    <button id="secret-btn" onclick="revelarSecreto()" class="text-rose-400 text-xs italic">P.D: No presionar 😳</button>
+                    <div id="secret-message" class="hidden text-rose-300 mt-4 font-bold animate-bounce">“Sabía que lo presionarías, coqueta… 😉”</div>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
+    <div class="mt-12 pt-8 border-t border-rose-100">
+    <p class="text-xs text-rose-300 mb-4 italic">P.D: Hay algo que no deberías tocar...</p>
+    <button id="secret-btn" onclick="revelarSecreto()" class="bg-rose-200/50 text-rose-500 px-4 py-2 rounded-full text-sm font-bold hover:bg-rose-300 transition-all active:scale-90">
+        No presionar 😳
+    </button>
+    
+    <div id="secret-message" class="hidden mt-4 p-4 bg-rose-500 text-white rounded-2xl shadow-lg fade-in">
+        “Sabía que lo presionarías, coqueta… 😉”
+        </div>
+    </div>
     <script>
         const FORMSPREE_ID = "meelalrz"; 
         
@@ -358,9 +383,9 @@
 
         const loveText = `Nuestra relación no empezó en un jardín de rosas. Fue duro, difícil de manejar y hubo momentos donde el cielo parecía estar siempre gris. Pero nos mantuvimos fuertes. Nos elegimos cuando era más fácil rendirse.
 
-Hoy miro atrás y veo todo lo que hemos construido de algunos momentos que siempre viven en mi cabeza. En el concierto de Kidd Voodoo, los 7 cachorritos que cuidamos con tanto amor, cuando te tatuaste mi inicial, las sorpresas en nuestros cumpleaños... esos momentos donde, cuando nadie más estaba, nosotros nos teníamos el uno al otro. 
+Hoy miro atrás y veo todo lo que hemos construido de algunos momentos que siempre viven en mi cabeza. En el concierto de Kidd Voodoo, los 7 cachorritos que cuidamos con tanto amor, cuando hicimos un grafiti demostrando nuestro amor ajksdk, cuando te tatuaste mi inicial, las sorpresas en nuestros cumpleaños... esos momentos donde, cuando nadie más estaba, nosotros nos teníamos el uno al otro. 
 
-Quiero que sepas algo hoy, en cualquier lugar del mundo: a pesar de cada discusión o pelea que tengamos, yo por ti voy a luchar siempre. No importa qué tan difícil se ponga el destino de nuestra vida, voy a seguir adelante porque mi único objetivo es estar contigo. Eres mi paz, mi tranquilidad y mi hogar,
+Quiero que sepas algo hoy, en cualquier lugar del mundo: a pesar de cada discusión o pelea que tengamos, yo por ti voy a luchar siempre. Sé y tengo claro que yo tambien me he comportado super estupido contigo ultimamente, sabiendo que tu cambiaste soy yo el que no cambia y de vd que te juro, ahora te juro, que cambiare por ti y por mi. Porque me di cuenta que de vd no importa qué tan difícil se ponga el destino de nuestra vida, yo voy a seguir adelante porque mi único objetivo es estar contigo. Eres mi paz, mi tranquilidad y mi hogar,
 
 Y no hay nada que me haga más feliz que saber que tú también sientes lo mismo por mí. Te amo con todo mi corazón, y siempre lo haré. Mi julieta (El Amor De Mi Vida) ❤️`;
 
@@ -394,7 +419,7 @@ function initPuzzle() {
         // Calcular coordenadas del fondo para nosotros.JPG
         const x = (pos % 3) * 100;
         const y = Math.floor(pos / 3) * 100;
-        piece.style.backgroundImage = "url('nosotros.JPG')"; 
+        piece.style.backgroundImage = "url('nosotros2.JPG')"; 
         piece.style.backgroundPosition = `-${x}px -${y}px`;
         
         piece.onclick = () => handlePieceClick(piece);
@@ -439,14 +464,47 @@ function checkPuzzleWin() {
     if (JSON.stringify(currentOrder) === JSON.stringify(correctOrder)) {
         document.getElementById('puzzle-message').style.opacity = '1';
         setTimeout(() => {
-            // Liberar scroll y pasar al final
             const body = document.getElementById('main-body');
             body.classList.remove('overflow-hidden');
             body.classList.add('allow-scroll');
             nextLevel('puzzle-screen', 'final-screen');
-            typeWriter();
-        }, 2500);
+            iniciarCierreEpico();
+        }, 2000);
     }
+}
+function revelarSecreto() {
+    const btn = document.getElementById('secret-btn');
+    const msg = document.getElementById('secret-message');
+    
+    // Desaparece el botón y aparece el texto
+    btn.classList.add('hidden');
+    msg.classList.remove('hidden');
+    
+    // Toque extra: un pequeño confeti en consola o efecto visual
+    console.log("Easter egg activado por la coqueta oficial.");
+}
+function iniciarCierreEpico() {
+    const steps = document.querySelectorAll('.step');
+    let delay = 0;
+
+    steps.forEach((step, index) => {
+        setTimeout(() => {
+            step.classList.remove('hidden');
+            // Al llegar al último paso (la carta)
+            if(index === steps.length - 1) {
+                // Liberamos el scroll del body para que pueda leer la carta larga en el iPad
+                const body = document.getElementById('main-body');
+                body.classList.remove('overflow-hidden');
+                body.classList.add('allow-scroll');
+                // Iniciamos el efecto de escritura de tu carta
+                typeWriter();
+            }
+            // Auto-scroll hacia la nueva imagen que aparece
+            step.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, delay);
+        
+        delay += 3500; // Tiempo entre cada foto (3.5 segundos)
+    });
 }
     </script>
 </body>
