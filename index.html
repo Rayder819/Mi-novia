@@ -57,6 +57,10 @@
     </style>
 </head>
 <body id="main-body" class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
+    
+    <audio id="musica-fondo" loop>
+        <source src="golden-hour.mp3" type="audio/mpeg">
+    </audio>
 
     <div id="start-screen" class="text-center fade-in max-w-sm">
         <div class="text-6xl mb-6">💌</div>
@@ -70,7 +74,7 @@
     <div id="quiz-screen" class="hidden w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl fade-in">
         <div class="flex justify-between items-center mb-6">
             <span class="text-rose-300 font-bold uppercase tracking-widest text-xs">Misión 1: Reflexión</span>
-            <span id="progress" class="text-rose-500 font-bold">1/5</span>
+            <span id="progress" class="text-rose-500 font-bold">1/8</span>
         </div>
         <h2 class="text-2xl font-bold mb-4 text-slate-700" id="quiz-question">Cargando...</h2>
         <textarea id="user-input" rows="3" class="w-full p-4 border-2 border-rose-100 rounded-2xl focus:border-rose-400 focus:outline-none transition-colors resize-none mb-6" placeholder="Responde de corazón..."></textarea>
@@ -137,7 +141,8 @@
                 
                 <div class="mt-12 pt-8 border-t border-slate-700">
                     <button id="secret-btn" onclick="revelarSecreto()" class="text-rose-400 text-xs italic">P.D: No presionar 😳</button>
-                    <div id="secret-message" class="hidden text-rose-300 mt-4 font-bold animate-bounce">“Sabía que lo presionarías, coqueta… 😉”</div>
+                    <div id="secret-message" class="hidden text-rose-300 mt-4 font-bold animate-bounce">“Sabía que lo presionarías, coqueta… 😉
+                        Feliz 14 de Febrero amor de mi vida 💘💦💦”</div>
                 </div>
             </div>
         </div>
@@ -217,6 +222,10 @@
         let currentLockQ = 0;
 
         function nextLevel(hideId, showId) {
+            if (musica.paused) {
+        musica.play().catch(e => console.log("El audio requiere interacción"));
+        musica.volume = 0.4; // Empezamos con volumen suave para el ambiente
+    }
             document.getElementById(hideId).classList.add('hidden');
             document.getElementById(showId).classList.remove('hidden');
             if (showId === 'quiz-screen') document.getElementById('quiz-question').innerText = questions[currentQ];
