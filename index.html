@@ -39,6 +39,21 @@
         .unlocked .heart-left { transform: rotate(-110deg) translateX(-40px); opacity: 0; }
         .unlocked .heart-right { transform: rotate(110deg) translateX(40px); opacity: 0; }
         .unlocked #lock-icon { transform: scale(0); opacity: 0; transition: all 0.5s; }
+
+        .puzzle-piece {
+        width: 100%;
+        height: 100%;
+        background-size: 300px 300px; /* Tamaño total de nosotros.JPG */
+        cursor: pointer;
+        border-radius: 4px;
+        transition: transform 0.2s, border 0.2s;
+        border: 1px solid rgba(255,255,255,0.3);
+        }
+        .puzzle-piece.selected {
+            transform: scale(0.95);
+            border: 3px solid #e11d48;
+            z-index: 10;
+        }
     </style>
 </head>
 <body id="main-body" class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
@@ -91,6 +106,18 @@
         <h2 id="lock-question" class="text-xl font-bold mb-6 text-slate-700 italic"></h2>
         <div id="lock-options" class="grid grid-cols-1 gap-3"></div>
         <p id="lock-progress" class="mt-6 text-sm text-rose-300 font-bold"></p>
+    </div>
+
+    <div id="puzzle-screen" class="hidden w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl fade-in text-center">
+    <span class="text-rose-300 font-bold uppercase tracking-widest text-xs mb-4 block">Misión 5: Encajamos Perfecto</span>
+    <p class="mb-4 text-slate-500 text-sm italic">Ordena nuestra foto para desbloquear la carta</p>
+    
+    <div id="puzzle-board" class="grid grid-cols-3 gap-1 mx-auto bg-rose-100 p-1 rounded-xl shadow-inner" style="width: 300px; height: 300px;">
+        </div>
+    
+    <div id="puzzle-message" class="mt-4 text-rose-600 font-bold opacity-0 transition-opacity duration-1000">
+        “Así como este puzzle… encajamos perfecto.”
+        </div>
     </div>
 
     <div id="final-screen" class="hidden max-w-2xl w-full bg-white p-10 rounded-3xl shadow-2xl fade-in text-center my-8">
@@ -159,9 +186,11 @@
         };
 
         const lockQuestions = [
-            { q: "¿Dónde fue nuestra primera cita?", a: ["Mall Plaza", "En el Cine", "Tu casa", "Un parque"], correct: 0 },
-            { q: "¿Cuál fue nuestra primera canción?", a: ["Una de Kidd Voodoo", "Nuestra favorita", "La que pusiste en el auto", "La de la radio"], correct: 1 },
-            { q: "¿Quién se enamoró primero? 👀", a: ["Tú", "Yo", "Al mismo tiempo", "Fue el destino"], correct: 1 }
+            { q: "¿Dónde fue nuestra primera cita?", a: ["Mall", "En el Cine", "Tu casa", "Un parque", "Motel"], correct: 0 },
+            { q: "¿Cuál fue el primer regalo que te hice?", a: ["Mi Pene", "Mi ano", "Una carta", "Una Rosa"], correct: 3 },
+            { q: "¿Cuál fue nuestra primera canción?", a: ["Destello", "Vea Pues", "La verdad", "Fluir", "Perdámonos"], correct: 1 },
+            { q: "¿Quién se enamoró primero? 👀", a: ["Tú", "Yo", "Al mismo tiempo", "Fue el destino"], correct: 2 },
+            { q: "¿Cuál es mi comida favorita?", a: ["Pizza", "Tu zorrita", "Tú 💘", "Hamburguesa", "Fideos con salsa"], correct: 4 }
         ];
 
         let currentQ = 0;
@@ -174,7 +203,9 @@
             if (showId === 'quiz-screen') document.getElementById('quiz-question').innerText = questions[currentQ];
             if (showId === 'adventure-screen') showAdventure('inicio');
             if (showId === 'game-screen') initSimbologia();
-            if (showId === 'lock-screen') showLock(); // FIX: Mostrar la misión 4
+            if (showId === 'lock-screen') showLock();
+            if (showId === 'puzzle-screen') initPuzzle();
+    
         }
 
         function handleQuizNext() {
@@ -241,7 +272,7 @@
                         const body = document.getElementById('main-body');
                         body.classList.remove('overflow-hidden');
                         body.classList.add('allow-scroll');
-                        nextLevel('lock-screen', 'final-screen');
+                        nextLevel('lock-screen', 'puzzle-screen');
                         typeWriter(); 
                     }, 1200);
                 }
@@ -341,6 +372,82 @@ Y no hay nada que me haga más feliz que saber que tú también sientes lo mismo
                 setTimeout(typeWriter, 45);
             }
         }
+        // --- CONFIGURACIÓN DEL PUZZLE ---
+let puzzlePieces = [];
+const correctOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+let currentOrder = [...correctOrder];
+let selectedPiece = null;
+
+function initPuzzle() {
+    const board = document.getElementById('puzzle-board');
+    board.innerHTML = '';
+    
+    // Desordenar (shuffle)
+    currentOrder.sort(() => Math.random() - 0.5);
+    
+    currentOrder.forEach((pos, index) => {
+        const piece = document.createElement('div');
+        piece.className = 'puzzle-piece';
+        piece.dataset.index = index;
+        piece.dataset.pos = pos;
+        
+        // Calcular coordenadas del fondo para nosotros.JPG
+        const x = (pos % 3) * 100;
+        const y = Math.floor(pos / 3) * 100;
+        piece.style.backgroundImage = "url('nosotros.JPG')"; 
+        piece.style.backgroundPosition = `-${x}px -${y}px`;
+        
+        piece.onclick = () => handlePieceClick(piece);
+        board.appendChild(piece);
+    });
+}
+
+function handlePieceClick(piece) {
+    if (!selectedPiece) {
+        selectedPiece = piece;
+        piece.classList.add('selected');
+    } else {
+        // Intercambiar posiciones en el DOM
+        const piece1Index = selectedPiece.dataset.index;
+        const piece2Index = piece.dataset.index;
+        
+        // Intercambiar en el array de seguimiento
+        const temp = currentOrder[piece1Index];
+        currentOrder[piece1Index] = currentOrder[piece2Index];
+        currentOrder[piece2Index] = temp;
+        
+        // Limpiar selección y refrescar tablero
+        selectedPiece.classList.remove('selected');
+        selectedPiece = null;
+        renderBoard();
+        checkPuzzleWin();
+    }
+}
+
+function renderBoard() {
+    const pieces = document.querySelectorAll('.puzzle-piece');
+    pieces.forEach((piece, index) => {
+        const pos = currentOrder[index];
+        const x = (pos % 3) * 100;
+        const y = Math.floor(pos / 3) * 100;
+        piece.style.backgroundPosition = `-${x}px -${y}px`;
+        piece.dataset.pos = pos;
+    });
+}
+
+function checkPuzzleWin() {
+    if (JSON.stringify(currentOrder) === JSON.stringify(correctOrder)) {
+        document.getElementById('puzzle-message').style.opacity = '1';
+        setTimeout(() => {
+            // Liberar scroll y pasar al final
+            const body = document.getElementById('main-body');
+            body.classList.remove('overflow-hidden');
+            body.classList.add('allow-scroll');
+            nextLevel('puzzle-screen', 'final-screen');
+            typeWriter();
+        }, 2500);
+    }
+}
     </script>
 </body>
 </html>
