@@ -19,6 +19,27 @@
         .allow-scroll { overflow-y: auto !important; overflow-x: hidden; }
         .btn-adventure { transition: all 0.2s; border: 2px solid #fecdd3; }
         .btn-adventure:active { transform: scale(0.95); background-color: #fff1f2; }
+        
+        /* Contenedor del Corazón */
+        .heart-container { position: relative; width: 100px; height: 90px; margin: 0 auto; }
+        
+        /* Partes del Corazón */
+        .heart-part { 
+            position: absolute; 
+            width: 50px; 
+            height: 80px; 
+            background: #e11d48; 
+            border-radius: 50px 50px 0 0; 
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .heart-left { transform: rotate(-45deg); left: 10px; transform-origin: 100% 100%; }
+        .heart-right { transform: rotate(45deg); right: 10px; transform-origin: 0% 100%; }
+
+        /* Estado Desbloqueado */
+        .unlocked .heart-left { transform: rotate(-110deg) translateX(-40px); opacity: 0; }
+        .unlocked .heart-right { transform: rotate(110deg) translateX(40px); opacity: 0; }
+        .unlocked #lock-icon { transform: scale(0); opacity: 0; transition: all 0.5s; }
+
     </style>
 </head>
 <body id="main-body" class="bg-rose-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
@@ -51,7 +72,7 @@
     </div>
 
     <div id="game-screen" class="hidden text-center fade-in w-full max-w-4xl">
-        <h2 class="text-2xl font-bold mb-2 text-rose-500">Nuestra Trayectoria</h2>
+        <h2 class="text-2xl font-bold mb-2 text-rose-500">Misión 3:Nuestra Trayectoria</h2>
         <p class="mb-4 text-slate-500 italic text-sm">Mantén presionado para elevar nuestro amor y recolectar los recuerdos</p>
         <div class="relative inline-block w-full">
             <canvas id="gameCanvas" width="800" height="400" class="w-full h-auto"></canvas>
@@ -59,6 +80,17 @@
                 <div class="bg-white/90 p-6 rounded-2xl shadow-xl text-xl font-bold text-rose-600 border-2 border-rose-200" id="story-text"></div>
             </div>
         </div>
+    </div>
+
+    <div id="lock-screen" class="hidden w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl fade-in text-center">
+        <span class="text-rose-300 font-bold uppercase tracking-widest text-xs mb-4 block">Misión 4: Desbloquea mi Corazón</span>
+        <div id="lock-visual" class="heart-container mb-8">
+            <div class="heart-part heart-left"></div>
+            <div class="heart-part heart-right"></div>
+        </div>
+        <h2 id="lock-question" class="text-xl font-bold mb-6 text-slate-700 italic"></h2>
+        <div id="lock-options" class="grid grid-cols-1 gap-3"></div>
+        <p id="lock-progress" class="mt-6 text-sm text-rose-300 font-bold"></p>
     </div>
 
     <div id="final-screen" class="hidden max-w-2xl w-full bg-white p-10 rounded-3xl shadow-2xl fade-in text-center my-8">
@@ -85,36 +117,43 @@
         // --- DATA AVENTURA ---
         const adventureData = {
             inicio: {
-                q: "Te veo por primera vez... ¿qué crees que hice?",
+                q: "Cuando te vi por primera vez... ¿qué crees que hice?",
                 options: [
                     { t: "Me hice el interesante 😎", next: "interesante" },
-                    { t: "Me puse nervioso 🥺", next: "nervioso" },
-                    { t: "Te hablé directo 💬", next: "directo" }
+                    { t: "Me puse caliente 💦", next: "caliente" },
+                    { t: "Te hablé directo 💬", next: "directo" },
+                    { t: "Me quedé callado y te miré fijamente 👀", next: "interesante" }
                 ]
             },
             interesante: {
-                q: "Traté de lucir cool, pero por dentro estaba colapsando. ¿Qué pensaste tú?",
+                q: "Trate de ser misterioso, pero no me salio DHDFJKA ¿Qué pensaste tú?",
                 options: [
                     { t: "Que era un pesado 😂", next: "final_aventura" },
-                    { t: "Que te llamé la atención ✨", next: "final_aventura" }
+                    { t: "Que te llamé la atención ✨", next: "final_aventura" },
+                    { t: "Que era un poco raro pero me gustó 😅", next: "final_aventura" },
+                    { t: "Que me estabas mirando raro 👀", next: "final_aventura" }
                 ]
             },
-            nervioso: {
-                q: "Casi no podía ni articular palabra. ¿Qué hiciste tú para ayudarme?",
+            caliente: {
+                q: "Se m paro a penas te vi... Si hubieras sabido esto ¿Que habrias hecho? 😳",
                 options: [
-                    { t: "Me sonreíste con ternura ❤️", next: "final_aventura" },
-                    { t: "Me hiciste una broma 🤡", next: "final_aventura" }
+                    { t: "Me habría abrazado contigo 💞", next: "final_aventura" },
+                    { t: "Me habría besado contigo 😘", next: "final_aventura" },
+                    { t: "Te hubiera follado al frente del paulo", next: "final_aventura" },
+                    { t: "Me meo", next: "final_aventura" }
                 ]
             },
             directo: {
-                q: "Fui directo al grano, ¡no quería perder tiempo! ¿Te asusté?",
+                q: "Fui directo al grano, no quería perder tiempo! ¿Te asusté?",
                 options: [
                     { t: "Un poquito, pero me gustó 😳", next: "final_aventura" },
-                    { t: "No, me pareció valiente 💪", next: "final_aventura" }
+                    { t: "No, me pareció valiente 💪", next: "final_aventura" },
+                    { t: "Me sorprendiste pero me gustó 😮‍💨", next: "final_aventura" },
+                    { t: "Me dejaste sin palabras 😶", next: "final_aventura" }
                 ]
             },
             final_aventura: {
-                q: "Sin importar el camino que tomamos ese día o las decisiones que tomemos hoy...",
+                q: "Y sin importar el camino que tomamos ese día o las decisiones que tomemos hoy...",
                 options: [
                     { t: "SIEMPRE TE ELIJO A TI ❤️", next: "FIN" }
                 ]
@@ -177,6 +216,64 @@
             } catch (e) { console.log("Sent"); }
         }
 
+        // --- DATA DEL CANDADO ---
+const lockQuestions = [
+    { 
+        q: "¿Dónde fue nuestra primera cita?", 
+        a: ["Mall Plaza", "En el Cine", "Tu casa", "Un parque"], 
+        correct: 0 
+    },
+    { 
+        q: "¿Cuál fue nuestra primera canción?", 
+        a: ["Una de Kidd Voodoo", "Nuestra favorita", "La que pusiste en el auto", "La de la radio"], 
+        correct: 1 
+    },
+    { 
+        q: "¿Quién se enamoró primero? 👀", 
+        a: ["Tú", "Yo", "Al mismo tiempo", "Fue el destino"], 
+        correct: 1 
+    }
+];
+
+let currentLockQ = 0;
+
+function showLock() {
+    const data = lockQuestions[currentLockQ];
+    document.getElementById('lock-question').innerText = data.q;
+    document.getElementById('lock-progress').innerText = `Paso ${currentLockQ + 1} de ${lockQuestions.length}`;
+    
+    const container = document.getElementById('lock-options');
+    container.innerHTML = '';
+    
+    data.a.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = "bg-rose-50 p-4 rounded-xl border-2 border-rose-100 font-bold text-rose-600 active:bg-rose-200 transition duration-200";
+        btn.innerText = opt;
+        btn.onclick = () => checkLock(i);
+        container.appendChild(btn);
+    });
+}
+
+function checkLock(index) {
+    if(index === lockQuestions[currentLockQ].correct) {
+        currentLockQ++;
+        if(currentLockQ < lockQuestions.length) {
+            showLock();
+        } else {
+            // EFECTO FINAL: Desbloqueo
+            document.getElementById('lock-visual').classList.add('unlocked');
+            document.getElementById('lock-icon').innerText = "💖";
+            
+            setTimeout(() => {
+                // Función que ya tienes para mostrar la carta final
+                nextLevel('lock-screen', 'final-screen');
+                typeWriter(); 
+            }, 1200);
+        }
+    } else {
+        alert("¡Clave incorrecta! Intenta recordar bien nuestro inicio... ❤️");
+    }
+}
         // --- LÓGICA JUEGO SIMBÓLICO ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
